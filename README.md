@@ -39,8 +39,7 @@ jac = Float64.(sparse(sparsity_pattern))
 
 ## API
 
-Automated sparsity detection is provided by the `sparsity!` function. This requires
-`using Cassette` for Requires. The syntax is:
+Automated sparsity detection is provided by the `sparsity!` function. The syntax is:
 
 ```julia
 `sparsity!(f, Y, X, args...; sparsity=Sparsity(length(X), length(Y)), verbose=true)`
