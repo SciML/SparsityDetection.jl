@@ -3,8 +3,12 @@
 [![Build Status](https://travis-ci.org/JuliaDiffEq/SparsityDetection.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/SparsityDetection.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/iruuqu4hxq00vo3s?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/sparsitydetection-jl)
 
-The ability to automatically detect the sparsity of a function would be great
-right? That's what we do.
+This is a package for automatic Jacobian and Hessian sparsity pattern detection
+on Julia functions. Functions written for numerical work can automatically be
+investigated in order to understand and utilize sparsity. This does not work
+numerically, and instead works by non-standard interpretation in order to
+check every branch for connectivity in order to determine an accurate sparsity
+pattern.
 
 ## Example
 
