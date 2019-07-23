@@ -1,5 +1,8 @@
 # SparsityDetection.jl
 
+[![Build Status](https://travis-ci.org/JuliaDiffEq/SparsityDetection.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/SparsityDetection.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/iruuqu4hxq00vo3s?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/sparsitydetection-jl)
+
 The ability to automatically detect the sparsity of a function would be great
 right? That's what we do.
 

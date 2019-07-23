@@ -1,10 +1,9 @@
 module SparsityDetection
 
 using SpecialFunctions
-using Cassette
+using Cassette, LinearAlgebra, SparseArrays
 using Cassette: tag, untag, Tagged, metadata, hasmetadata, istagged, canrecurse
 using Cassette: tagged_new_tuple, ContextTagged, BindingMeta, DisableHooks, nametype
-
 using Core: SSAValue
 
 export Sparsity, hsparsity, sparsity!
