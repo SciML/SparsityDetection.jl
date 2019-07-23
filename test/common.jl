@@ -1,12 +1,12 @@
 ### Rules
-using Cassette, SparseDiffTools
+using Cassette, SparsityDetection
 using SparseArrays, Test
 
 using Cassette: tag, untag, Tagged, metadata, hasmetadata, istagged
-using SparseDiffTools: Path, BranchesPass, SparsityContext, Fixed,
+using SparsityDetection: Path, BranchesPass, SparsityContext, Fixed,
     Input, Output, ProvinanceSet, Tainted, istainted,
     alldone, reset!, HessianSparsityContext
-using SparseDiffTools: TermCombination
+using SparsityDetection: TermCombination
 
 function tester(f, Y, X, args...; sparsity=Sparsity(length(Y), length(X)))
 
