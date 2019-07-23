@@ -1,6 +1,6 @@
 using SparseArrays
 using LinearAlgebra
-using SparseDiffTools
+using SparsityDetection
 
 struct ParaboloidStruct{T, Tm <: AbstractArray{T,2},
                            Tv <: AbstractArray{T}} <: Any where T<:Number
