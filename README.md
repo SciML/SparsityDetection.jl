@@ -49,7 +49,7 @@ Automated Jacobian sparsity detection is provided by the `sparsity!` function.
 The syntax is:
 
 ```julia
-`sparsity!(f, Y, X, args...; sparsity=Sparsity(length(X), length(Y)), verbose=true)`
+sparsity!(f, Y, X, args...; sparsity=Sparsity(length(X), length(Y)), verbose=true)
 ```
 
 The arguments are:
