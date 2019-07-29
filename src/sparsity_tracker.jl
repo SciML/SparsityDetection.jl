@@ -67,10 +67,10 @@ end
 struct Tainted end
 
 # getindex on the input
-function Cassette.overdub(ctx::SparsityContext,
-                          f::typeof(getindex),
-                          X::Tagged,
-                          idx::Int...)
+@inline function Cassette.overdub(ctx::SparsityContext,
+                                  f::typeof(getindex),
+                                  X::Tagged,
+                                  idx::Int...)
     if ismetatype(X, ctx, Input)
         i = LinearIndices(untag(X, ctx))[idx...]
         val = Cassette.fallback(ctx, f, X, idx...)
@@ -81,11 +81,11 @@ function Cassette.overdub(ctx::SparsityContext,
 end
 
 # setindex! on the output
-function Cassette.overdub(ctx::SparsityContext,
-                          f::typeof(setindex!),
-                          Y::Tagged,
-                          val::Tagged,
-                          idx::Int...)
+@inline function Cassette.overdub(ctx::SparsityContext,
+                                  f::typeof(setindex!),
+                                  Y::Tagged,
+                                  val::Tagged,
+                                  idx::Int...)
     S, path = ctx.metadata
     if ismetatype(Y, ctx, Output)
         set = metadata(val, ctx)
@@ -125,7 +125,7 @@ function _overdub_union_provinance(::Val{eval}, ctx::SparsityContext, f, args...
     end
 end
 
-function Cassette.overdub(ctx::SparsityContext, f, args...)
+@inline function Cassette.overdub(ctx::SparsityContext, f, args...)
     haspsets = any(x->ismetatype(x, ctx, ProvinanceSet), args)
     hasinput = any(x->ismetatype(x, ctx, Input), args)
     if haspsets && !hasinput # && !canrecurse(ctx, f, args...)
