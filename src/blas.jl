@@ -2,9 +2,9 @@
 
 macro reroute(f, g)
     quote
-        function Cassette.overdub(ctx::HessianSparsityContext,
-                                  f::typeof($(esc(f))),
-                                  args...)
+        @inline function Cassette.overdub(ctx::HessianSparsityContext,
+                                          f::typeof($(esc(f))),
+                                          args...)
             println("rerouted")
             Cassette.overdub(
                 ctx,

@@ -1,7 +1,8 @@
 istainted(ctx::SparsityContext, x) = ismetatype(x, ctx, ProvinanceSet)
 
-Cassette.overdub(ctx::SparsityContext, f::typeof(istainted), x) = istainted(ctx, x)
-Cassette.overdub(ctx::SparsityContext, f::typeof(this_here_predicate!)) = this_here_predicate!(ctx)
+@inline Cassette.overdub(ctx::SparsityContext, f::typeof(istainted), x) = istainted(ctx, x)
+@inline Cassette.overdub(ctx::SparsityContext, f::typeof(this_here_predicate!)) =
+    this_here_predicate!(ctx)
 
 # Must return 7 exprs
 function rewrite_branch(ctx, stmt, extraslot, i)
