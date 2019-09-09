@@ -128,8 +128,6 @@ function Cassette.overdub(ctx::JacobianSparsityContext,
     end
 end
 
-Base.@deprecate sparsity!(args...) jacobian_sparsity(args...)
-
 function jacobian_sparsity(f!, Y, X, args...;
                            sparsity=Sparsity(length(Y), length(X)),
                            raw = false)
