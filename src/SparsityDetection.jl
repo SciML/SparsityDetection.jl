@@ -8,14 +8,11 @@ using Core: SSAValue
 
 export Sparsity, hsparsity, sparsity!
 
-include("program_sparsity.jl")
-include("sparsity_tracker.jl")
-include("path.jl")
-include("take_all_branches.jl")
-include("terms.jl")
+include("util.jl")
+include("controlflow.jl")
+include("propagate_tags.jl")
 include("linearity.jl")
+include("jacobian.jl")
 include("hessian.jl")
-include("blas.jl")
-include("linearity_special.jl")
 
 end
