@@ -1,7 +1,7 @@
 name = "SparsityDetection"
 uuid = "684fba80-ace3-11e9-3d08-3bc7ed6f96df"
 authors = ["Shashi Gowda", "Chris Rackauckas <contact@chrisrackauckas.com>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 Cassette = "7057c7e9-c182-5462-911a-8362d720325c"
