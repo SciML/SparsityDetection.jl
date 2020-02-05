@@ -41,24 +41,6 @@ function sparsity!(f!, Y, X, args...; sparsity=Sparsity(length(Y), length(X)),
     sparse(sparsity)
 end
 
-function Cassette.overdub(ctx::JacobianSparsityContext,
-                          f::typeof(Base.unsafe_copyto!),
-                          X::Tagged,
-                          xstart,
-                          Y::Tagged,
-                          ystart,
-                          len)
-    S = ctx.metadata
-    if metatype(Y, ctx) <: JacInput
-        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
-        nometa = Cassette.NoMetaMeta()
-        X.meta.meta[xstart:xstart+len-1] .= (i->Cassette.Meta(ProvinanceSet(i), nometa)).(ystart:ystart+len-1)
-        val
-    else
-        Cassette.recurse(ctx, f, X, xstart, Y, ystart, len)
-    end
-end
-
 function hsparsity(f, X, args...; verbose=true)
 
     terms = zero(TermCombination)
