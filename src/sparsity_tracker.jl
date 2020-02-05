@@ -135,6 +135,43 @@ end
     end
 end
 
+function Cassette.overdub(ctx::SparsityContext,
+                          f::typeof(Base.unsafe_copyto!),
+                          X::Tagged,
+                          xstart,
+                          Y::Tagged,
+                          ystart,
+                          len)
+    S = ctx.metadata[1]
+    if ismetatype(Y, ctx, Input) && ismetatype(X, ctx, Output)
+        # Write directly to the output sparsity
+        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
+        for (i, j) in zip(xstart:xstart+len-1, ystart:ystart+len-1)
+            push!(S, i, j)
+        end
+        val
+    elseif ismetatype(Y, ctx, Input)
+        # Keep around a ProvinanceSet
+        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
+        nometa = Cassette.NoMetaMeta()
+        rhs = (i->Cassette.Meta(ProvinanceSet(i), nometa)).(ystart:ystart+len-1)
+        X.meta.meta[xstart:xstart+len-1] .= rhs
+        val
+    elseif ismetatype(X, ctx, Output)
+        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
+        for (i, j) in zip(xstart:xstart+len-1, ystart:ystart+len-1)
+            y = Cassette.@overdub ctx Y[j]
+            set = metadata(y, ctx)
+            if set isa ProvinanceSet
+                push!(S, i, set)
+            end
+        end
+        val
+    else
+        Cassette.recurse(ctx, f, X, xstart, Y, ystart, len)
+    end
+end
+
 #=
 # Examples:
 #

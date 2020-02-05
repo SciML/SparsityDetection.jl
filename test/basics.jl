@@ -17,4 +17,8 @@ let
     #g(y,x) = y .= x .+ 1 -- memove
 
     @test sparse(testmeta(g, [1], [2])[1]) == sparse([1], [1], true)
+    # test path of unsafe_copy from Input to Output
+    @test sparsity!((y,x) -> y .= x, [1,2,3], [1,2,3]) == sparse([1,2,3], [1,2,3], true)
+    # test path of unsafe_copy from Input to an intermediary
+    @test sparsity!((y,x) -> y[1:2] .= x[2:3], [1,2,3], [1,2,3]) == sparse([1,2],[2,3],true, 3,3)
 end
