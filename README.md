@@ -10,6 +10,16 @@ numerically, and instead works by non-standard interpretation in order to
 check every branch for connectivity in order to determine an accurate sparsity
 pattern.
 
+If you use this package, please cite the following:
+
+```
+@article{gowda2019sparsity,
+  title={Sparsity Programming: Automated Sparsity-Aware Optimizations in Differentiable Programming},
+  author={Gowda, Shashi and Ma, Yingbo and Churavy, Valentin and Edelman, Alan and Rackauckas, Christopher},
+  year={2019}
+}
+```
+
 ## Example
 
 Suppose we had the function
