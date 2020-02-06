@@ -1,3 +1,5 @@
+using LinearAlgebra
+
 let
     # Should this be Array{Tainted,1} ?
     @test testval((Y,X) -> typeof(X), [1], [2]) == Array{Int, 1}
@@ -21,4 +23,12 @@ let
     @test sparsity!((y,x) -> y .= x, [1,2,3], [1,2,3]) == sparse([1,2,3], [1,2,3], true)
     # test path of unsafe_copy from Input to an intermediary
     @test sparsity!((y,x) -> y[1:2] .= x[2:3], [1,2,3], [1,2,3]) == sparse([1,2],[2,3],true, 3,3)
+
+    function testsparse!(out, x)
+        A = Tridiagonal(x[2:end], x, x[1:end-1])
+        mul!(out, A, x)
+    end
+    x = [1:4;]; out = similar(x);
+    @test sparsity!(testsparse!, out, x) == sparse([1,2,1,2,3,2,3,4,3,4],
+                                                   [1,1,2,2,2,3,3,3,4,4], true)
 end
