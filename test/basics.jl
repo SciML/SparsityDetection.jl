@@ -24,6 +24,8 @@ let
     # test path of unsafe_copy from Input to an intermediary
     @test sparsity!((y,x) -> y[1:2] .= x[2:3], [1,2,3], [1,2,3]) == sparse([1,2],[2,3],true, 3,3)
 
+    using LinearAlgebra, SparsityDetection
+
     function testsparse!(out, x)
         A = Tridiagonal(x[2:end], x, x[1:end-1])
         mul!(out, A, x)

@@ -111,27 +111,40 @@ get_provinance(ctx, arg) = ProvinanceSet(())
 
 # Any function acting on a value tagged with ProvinanceSet
 function _overdub_union_provinance(::Val{eval}, ctx::SparsityContext, f, args...) where {eval}
+function _overdub_union_provinance(ctx::SparsityContext, f, args...) where {eval}
     idxs = findall(x->ismetatype(x, ctx, ProvinanceSet), args)
     if isempty(idxs)
-        Cassette.fallback(ctx, f, args...)
+        Cassette.recurse(ctx, f, args...)
     else
         provinance = union(map(arg->get_provinance(ctx, arg), args[idxs])...)
-        if eval
-            val = Cassette.fallback(ctx, f, args...)
-            tag(val, ctx, provinance)
+        val = Cassette.recurse(ctx, f, args...)
+        if ismetatype(val, ctx, ProvinanceSet)
+            tag(untag(val, ctx), ctx, union(metadata(val, ctx), provinance))
         else
-            tag(Tainted(), ctx, provinance)
+            tag(val, ctx, provinance)
         end
     end
 end
 
-@inline function Cassette.overdub(ctx::SparsityContext, f, args...)
-    haspsets = any(x->ismetatype(x, ctx, ProvinanceSet), args)
-    hasinput = any(x->ismetatype(x, ctx, Input), args)
-    if haspsets && !hasinput # && !canrecurse(ctx, f, args...)
-        _overdub_union_provinance(Val{true}(), ctx, f, args...)
+function Cassette.overdub(ctx::SparsityContext, f, args...)
+    haspsets = false
+    hasinput = false
+    hasoutput = false
+
+    for a in args
+        if ismetatype(a, ctx, ProvinanceSet)
+            haspsets = true
+        elseif ismetatype(a, ctx, Input)
+            hasinput = true
+        elseif ismetatype(a, ctx, Output)
+            hasoutput = true
+        end
+    end
+
+    if haspsets && !hasinput && !hasoutput
+        return _overdub_union_provinance(ctx, f, args...)
     else
-        Cassette.recurse(ctx, f, args...)
+        return Cassette.recurse(ctx, f, args...)
     end
 end
 
