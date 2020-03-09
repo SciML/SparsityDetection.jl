@@ -168,7 +168,14 @@ function Cassette.overdub(ctx::SparsityContext,
         end
         val
     else
-        Cassette.recurse(ctx, f, X, xstart, Y, ystart, len)
+        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
+        for (i, j) in zip(xstart:xstart+len-1, ystart:ystart+len-1)
+            y = Cassette.@overdub ctx Y[j]
+            set = metadata(y, ctx)
+            nometa = Cassette.NoMetaMeta()
+            X.meta.meta[i] = Cassette.Meta(set, nometa)
+        end
+        val
     end
 end
 
