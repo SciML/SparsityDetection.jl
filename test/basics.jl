@@ -32,3 +32,15 @@ let
     @test sparsity!(testsparse!, out, x) == sparse([1,2,1,2,3,2,3,4,3,4],
                                                    [1,1,2,2,2,3,3,3,4,4], true)
 end
+
+@testset "BLAS" begin
+    function f(out,in)
+        A = rand(length(in), length(in))
+        out .= A * in
+        return nothing
+    end
+
+    x = [1.0:10;]
+    out = similar(x)
+    @test all(sparsity!(f, out, x) .== 1)
+end
