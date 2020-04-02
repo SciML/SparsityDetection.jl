@@ -4,7 +4,7 @@ using SparseArrays, Test
 
 using Cassette: tag, untag, Tagged, metadata, hasmetadata, istagged
 using SparsityDetection: Path, BranchesPass, SparsityContext, Fixed,
-    Input, Output, ProvinanceSet, Tainted, istainted,
+    Input, Output, pset, Tainted, istainted,
     alldone, reset!, HessianSparsityContext
 using SparsityDetection: TermCombination
 
@@ -23,7 +23,7 @@ function tester(f, Y, X, args...; sparsity=Sparsity(length(Y), length(X)))
                             tag(X, ctx, Input()),
                             map(arg -> arg isa Fixed ?
                                 arg.value :
-                                tag(arg, ctx, ProvinanceSet(())), args)...)
+                                tag(arg, ctx, pset()), args)...)
         println("Explored path: ", path)
         alldone(path) && break
         reset!(path)

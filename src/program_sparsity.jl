@@ -32,7 +32,7 @@ function sparsity!(f!, Y, X, args...; sparsity=Sparsity(length(Y), length(X)),
                          tag(X, ctx, Input()),
                          # TODO: make this recursive
                          map(arg -> arg isa Fixed ?
-                             arg.value : tag(arg, ctx, ProvinanceSet(())), args)...)
+                             arg.value : tag(arg, ctx, pset()), args)...)
 
         verbose && println("Explored path: ", path)
         alldone(path) && break
