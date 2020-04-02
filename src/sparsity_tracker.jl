@@ -27,25 +27,19 @@ end
 struct Input end
 struct Output end
 
-struct ProvinanceSet{T}
+struct ProvinanceSet{T<:Set}
     set::T # Set, Array, Int, Tuple, anything!
 end
 
 # note: this is not strictly set union, just some efficient way of concating
-Base.union(p::ProvinanceSet{<:Tuple},
-           q::ProvinanceSet{<:Integer}) = ProvinanceSet((p.set..., q.set,))
-Base.union(p::ProvinanceSet{<:Integer},
-           q::ProvinanceSet{<:Tuple}) = ProvinanceSet((p.set, q.set...,))
-Base.union(p::ProvinanceSet{<:Integer},
-           q::ProvinanceSet{<:Integer}) = ProvinanceSet((p.set, q.set,))
-Base.union(p::ProvinanceSet{<:Tuple},
-           q::ProvinanceSet{<:Tuple}) = ProvinanceSet((p.set..., q.set...,))
 Base.union(p::ProvinanceSet,
            q::ProvinanceSet) = ProvinanceSet(union(p.set, q.set))
 Base.union(p::ProvinanceSet,
            q::ProvinanceSet,
            rs::ProvinanceSet...) = union(union(p, q), rs...)
 Base.union(p::ProvinanceSet) = p
+
+pset(x...) = ProvinanceSet(Set([x...]))
 
 function Base.push!(S::Sparsity, i::Int, js::ProvinanceSet)
     for j in js.set
@@ -74,7 +68,7 @@ struct Tainted end
     if ismetatype(X, ctx, Input)
         i = LinearIndices(untag(X, ctx))[idx...]
         val = Cassette.fallback(ctx, f, X, idx...)
-        tag(val, ctx, ProvinanceSet(i))
+        tag(val, ctx, pset(i))
     else
         Cassette.recurse(ctx, f, X, idx...)
     end
@@ -103,35 +97,47 @@ function get_provinance(ctx, arg::Tagged)
     if metadata(arg, ctx) isa ProvinanceSet
         metadata(arg, ctx)
     else
-        ProvinanceSet(())
+        pset()
     end
 end
 
-get_provinance(ctx, arg) = ProvinanceSet(())
+get_provinance(ctx, arg) = pset()
 
 # Any function acting on a value tagged with ProvinanceSet
-function _overdub_union_provinance(::Val{eval}, ctx::SparsityContext, f, args...) where {eval}
+function _overdub_union_provinance(ctx::SparsityContext, f, args...) where {eval}
     idxs = findall(x->ismetatype(x, ctx, ProvinanceSet), args)
     if isempty(idxs)
-        Cassette.fallback(ctx, f, args...)
+        Cassette.recurse(ctx, f, args...)
     else
         provinance = union(map(arg->get_provinance(ctx, arg), args[idxs])...)
-        if eval
-            val = Cassette.fallback(ctx, f, args...)
-            tag(val, ctx, provinance)
+        val = Cassette.recurse(ctx, f, args...)
+        if ismetatype(val, ctx, ProvinanceSet)
+            tag(untag(val, ctx), ctx, union(metadata(val, ctx), provinance))
         else
-            tag(Tainted(), ctx, provinance)
+            tag(val, ctx, provinance)
         end
     end
 end
 
-@inline function Cassette.overdub(ctx::SparsityContext, f, args...)
-    haspsets = any(x->ismetatype(x, ctx, ProvinanceSet), args)
-    hasinput = any(x->ismetatype(x, ctx, Input), args)
-    if haspsets && !hasinput # && !canrecurse(ctx, f, args...)
-        _overdub_union_provinance(Val{true}(), ctx, f, args...)
+function Cassette.overdub(ctx::SparsityContext, f, args...)
+    haspsets = false
+    hasinput = false
+    hasoutput = false
+
+    for a in args
+        if ismetatype(a, ctx, ProvinanceSet)
+            haspsets = true
+        elseif ismetatype(a, ctx, Input)
+            hasinput = true
+        elseif ismetatype(a, ctx, Output)
+            hasoutput = true
+        end
+    end
+
+    if haspsets && !hasinput && !hasoutput
+        return _overdub_union_provinance(ctx, f, args...)
     else
-        Cassette.recurse(ctx, f, args...)
+        return Cassette.recurse(ctx, f, args...)
     end
 end
 
@@ -154,7 +160,7 @@ function Cassette.overdub(ctx::SparsityContext,
         # Keep around a ProvinanceSet
         val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
         nometa = Cassette.NoMetaMeta()
-        rhs = (i->Cassette.Meta(ProvinanceSet(i), nometa)).(ystart:ystart+len-1)
+        rhs = (i->Cassette.Meta(pset(i), nometa)).(ystart:ystart+len-1)
         X.meta.meta[xstart:xstart+len-1] .= rhs
         val
     elseif ismetatype(X, ctx, Output)
@@ -168,7 +174,14 @@ function Cassette.overdub(ctx::SparsityContext,
         end
         val
     else
-        Cassette.recurse(ctx, f, X, xstart, Y, ystart, len)
+        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
+        for (i, j) in zip(xstart:xstart+len-1, ystart:ystart+len-1)
+            y = Cassette.@overdub ctx Y[j]
+            set = metadata(y, ctx)
+            nometa = Cassette.NoMetaMeta()
+            X.meta.meta[i] = Cassette.Meta(set, nometa)
+        end
+        val
     end
 end
 
