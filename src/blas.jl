@@ -19,7 +19,7 @@ macro reroute(f, g)
 
         @inline function Cassette.overdub(ctx::HessianSparsityContext,
                                           f::typeof($(esc(fname))),
-                                          args...)
+                                          $(fargs...))
             Cassette.recurse(
                 ctx,
                 invoke,
