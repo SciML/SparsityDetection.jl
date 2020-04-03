@@ -13,7 +13,7 @@ const D = 100.0
 const γ₁ = 0.1
 const γ₂ = 0.1
 const γ₃ = 0.1
-const N = 16
+const N = 8
 const X = reshape([i for i in 1:N for j in 1:N],N,N)
 const Y = reshape([j for i in 1:N for j in 1:N],N,N)
 const α₁ = 1.0.*(X.>=4*N/5)
