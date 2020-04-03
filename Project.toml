@@ -15,7 +15,9 @@ SpecialFunctions = "0.8, 0.9, 0.10"
 julia = "1"
 
 [extras]
+FiniteDiff = "6a86dc24-6348-571c-b903-95158fe2bd41"
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["FiniteDiff", "SafeTestsets", "Test"]
