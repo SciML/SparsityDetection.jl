@@ -1,6 +1,6 @@
 # SparsityDetection.jl
 
-[![Build Status](https://travis-ci.org/JuliaDiffEq/SparsityDetection.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/SparsityDetection.jl)
+[![Build Status](https://travis-ci.org/SciML/SparsityDetection.jl.svg?branch=master)](https://travis-ci.org/SciML/SparsityDetection.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/iruuqu4hxq00vo3s?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/sparsitydetection-jl)
 
 This is a package for automatic Jacobian and Hessian sparsity pattern detection
