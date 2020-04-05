@@ -5,4 +5,5 @@ include("common.jl")
 @testset "Exploration" begin include("ifsandbuts.jl") end
 @testset "Hessian sparsity" begin include("hessian.jl") end
 @testset "Paraboloid example" begin include("paraboloid.jl") end
+@safetestset "Simple examples" begin include("examples.jl") end
 @safetestset "Global PDE example" begin include("global_PDE.jl") end
