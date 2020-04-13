@@ -16,7 +16,7 @@ let
     @test sparse(jactestmeta(f, [1], [2])) == sparse([], [], true, 1, 1)
 
     g(y,x) = y[:] .= x .+ 1
-    #g(y,x) = y .= x .+ 1 -- memove
+    #g(y,x) = y .= x .+ 1 -- memmove
 
     @test sparse(jactestmeta(g, [1], [2])) == sparse([1], [1], true)
 end

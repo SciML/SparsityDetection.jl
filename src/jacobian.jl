@@ -169,3 +169,47 @@ function jacobian_sparsity(f!, Y, X, args...;
         return sparse(sparsity)
     end
 end
+
+function Cassette.overdub(ctx::SparsityContext,
+                          f::typeof(Base.unsafe_copyto!),
+                          X::Tagged,
+                          xstart,
+                          Y::Tagged,
+                          ystart,
+                          len)
+    S = ctx.metadata
+    if ismetatype(Y, ctx, JacInput) && ismetatype(X, ctx, JacOutput)
+        # Write directly to the output sparsity
+        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
+        for (i, j) in zip(xstart:xstart+len-1, ystart:ystart+len-1)
+            push!(S, i, j)
+        end
+        val
+    elseif ismetatype(Y, ctx, JacInput)
+        # Keep around a ProvinanceSet
+        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
+        nometa = Cassette.NoMetaMeta()
+        rhs = (i->Cassette.Meta(pset(i), nometa)).(ystart:ystart+len-1)
+        X.meta.meta[xstart:xstart+len-1] .= rhs
+        val
+    elseif ismetatype(X, ctx, JacOutput)
+        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
+        for (i, j) in zip(xstart:xstart+len-1, ystart:ystart+len-1)
+            y = Cassette.@overdub ctx Y[j]
+            set = metadata(y, ctx)
+            if set isa ProvinanceSet
+                push!(S, i, set)
+            end
+        end
+        val
+    else
+        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
+        for (i, j) in zip(xstart:xstart+len-1, ystart:ystart+len-1)
+            y = Cassette.@overdub ctx Y[j]
+            set = metadata(y, ctx)
+            nometa = Cassette.NoMetaMeta()
+            X.meta.meta[i] = Cassette.Meta(set, nometa)
+        end
+        val
+    end
+end

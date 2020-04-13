@@ -36,6 +36,6 @@ end
 Called only if any of the `args` are Tagged.
 must return `result` or a tagged version of `result`.
 """
-function propagate_tags(ctx, f, result, args...)
+@inline function propagate_tags(ctx, f, result, args...)
     result
 end
