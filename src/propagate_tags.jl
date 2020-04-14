@@ -1,11 +1,16 @@
 
+@inline anytagged() = false
+@inline anytagged(x::Tagged, args...) = true
+@inline anytagged(x, args...) = anytagged(args...)
+
+
 macro proptagcontext(name)
     quote
         Cassette.@context($name)
 
         function Cassette.overdub(ctx::$name, f, args...)
             # this check can be inferred (in theory)
-            if any(x->x isa Tagged, args)
+            if anytagged(args...)
                 # This is a slower check
                 if !any(x->!(metatype(x, ctx) <: Cassette.NoMetaData), args)
                     return Cassette.recurse(ctx, f, args...)

@@ -1,4 +1,110 @@
-using Amb
+#### Path
+
+# First just do it for the case where there we assume
+# tainted gotoifnots do not go in a loop!
+# TODO: write a thing to detect this! (overdub predicates only in tainted ifs)
+# implement snapshotting function state as an optimization for branch exploration
+mutable struct Path
+    path::BitVector
+    cursor::Int
+end
+
+Path() = Path([], 1)
+
+function increment!(bitvec)
+    for i=1:length(bitvec)
+        if bitvec[i] === true
+            bitvec[i] = false
+        else
+            bitvec[i] = true
+            break
+        end
+    end
+end
+
+function reset!(p::Path)
+    p.cursor=1
+    increment!(p.path)
+    nothing
+end
+
+function alldone(p::Path) # must be called at the end of the function!
+    all(identity, p.path)
+end
+
+function current_predicate!(p::Path)
+    if p.cursor > length(p.path)
+        push!(p.path, false)
+    else
+        p.path[p.cursor]
+    end
+    val = p.path[p.cursor]
+    p.cursor+=1
+    val
+end
+
+alldone(c) = alldone(c.metadata[2])
+reset!(c) = reset!(c.metadata[2])
+current_predicate!(c) = current_predicate!(c.metadata[2])
+
+#=
+julia> p=Path()
+Path(Bool[], 1)
+
+julia> alldone(p) # must be called at the end of a full run
+true
+
+julia> current_predicate!(p)
+false
+
+julia> alldone(p) # must be called at the end of a full run
+false
+
+julia> current_predicate!(p)
+false
+
+julia> p
+Path(Bool[false, false], 3)
+
+julia> alldone(p)
+false
+
+julia> reset!(p)
+
+julia> p
+Path(Bool[true, false], 1)
+
+julia> current_predicate!(p)
+true
+
+julia> current_predicate!(p)
+false
+
+julia> alldone(p)
+false
+
+julia> reset!(p)
+
+julia> p
+Path(Bool[false, true], 1)
+
+julia> current_predicate!(p)
+false
+
+julia> current_predicate!(p)
+true
+
+julia> reset!(p)
+
+julia> current_predicate!(p)
+true
+
+julia> current_predicate!(p)
+true
+
+julia> alldone(p)
+true
+=#
 
 """
 `abstract_run(g, ctx, overdubbed_fn, args...)`
@@ -32,9 +138,17 @@ end
 # do something to merge metadata from all the runs
 ```
 """
-function abstract_run(acc, ctx::Cassette.Context, overdub_fn, args...)
-    pass_ctx = Cassette.similarcontext(ctx, pass=AbsintPass)
-        acc(Cassette.overdub(pass_ctx, overdub_fn, args...))
+function abstract_run(acc, ctx::Cassette.Context, overdub_fn, args...; verbose=true)
+    path = Path()
+    pass_ctx = Cassette.similarcontext(ctx, metadata=(ctx.metadata, path), pass=AbsintPass)
+
+    while true
+        acc(Cassette.recurse(pass_ctx, ()->overdub_fn(args...)))
+
+        verbose && println("Explored path: ", path)
+        alldone(path) && break
+        reset!(path)
+    end
 end
 
 """
@@ -46,8 +160,6 @@ function istainted(ctx, cond)
     error("Method needed: istainted(::$(typeof(ctx)), ::Bool)." *
           " See docs for `istainted`.")
 end
-
-_choice() = (@amb true false)
 
 # Must return 7 exprs
 function rewrite_branch(ctx, stmt, extraslot, i)
@@ -70,9 +182,9 @@ function rewrite_branch(ctx, stmt, extraslot, i)
     # not tainted? jump to the penultimate statement
     push!(exprs, Expr(:gotoifnot, istainted_ssa, i+5))
 
-    # tainted? then use this_here_predicate!(SSAValue(1))
+    # tainted? then use current_predicate!(SSAValue(1))
     current_pred = i+2
-    push!(exprs, :($_choice()))
+    push!(exprs, :($(Expr(:nooverdub, current_predicate!))($(Expr(:contextslot)))))
 
     # Store the interpreter-provided predicate in the slot
     push!(exprs, Expr(:(=), extraslot, SSAValue(i+2)))
@@ -93,7 +205,7 @@ function rewrite_ir(ctx, ref)
     # turn
     #   <val> ? t : f
     # into
-    #   istainted(<val>) ? this_here_predicate!(p) : <val> ? t : f
+    #   istainted(<val>) ? current_predicate!(p) : <val> ? t : f
 
     ir = ref.code_info
     ir = copy(ir)

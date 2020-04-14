@@ -25,22 +25,16 @@ function Base.push!(S::Sparsity, i::Int, j::Int)
     push!(S.J, j)
 end
 
-struct ProvinanceSet{T}
-    set::T # Set, Array, Int, Tuple, anything!
+struct ProvinanceSet
+    set::Set{Int}
+    ProvinanceSet(s::Set) = new(s)
+    ProvinanceSet(s) = new(Set(s))
 end
 
 # note: this is not strictly set union, just some efficient way of concating
 Base.union(p::ProvinanceSet, ::Cassette.NoMetaData) = p
 Base.union(::Cassette.NoMetaData, p::ProvinanceSet) = p
 
-Base.union(p::ProvinanceSet{<:Tuple},
-           q::ProvinanceSet{<:Integer}) = ProvinanceSet((p.set..., q.set,))
-Base.union(p::ProvinanceSet{<:Integer},
-           q::ProvinanceSet{<:Tuple}) = ProvinanceSet((p.set, q.set...,))
-Base.union(p::ProvinanceSet{<:Integer},
-           q::ProvinanceSet{<:Integer}) = ProvinanceSet((p.set, q.set,))
-Base.union(p::ProvinanceSet{<:Tuple},
-           q::ProvinanceSet{<:Tuple}) = ProvinanceSet((p.set..., q.set...,))
 Base.union(p::ProvinanceSet,
            q::ProvinanceSet) = ProvinanceSet(union(p.set, q.set))
 Base.union(p::ProvinanceSet,
@@ -115,7 +109,7 @@ function Cassette.overdub(ctx::JacobianSparsityContext,
                           Y::Tagged,
                           val::Tagged,
                           idx::Int...)
-    S = ctx.metadata
+    S = ctx.metadata[1]
     if metatype(Y, ctx) <: JacOutput
         set = metadata(val, ctx)
         if set isa ProvinanceSet
@@ -159,7 +153,7 @@ function Cassette.overdub(ctx::JacobianSparsityContext,
                           Y::Tagged,
                           ystart,
                           len)
-    S = ctx.metadata
+    S = ctx.metadata[1]
     if metatype(Y, ctx) <: JacInput && metatype(X, ctx) <: JacOutput
         # Write directly to the output sparsity
         val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)

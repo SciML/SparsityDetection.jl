@@ -18,11 +18,15 @@ let
     g(y,x) = y[:] .= x .+ 1
     #g(y,x) = y .= x .+ 1 -- memove
 
-    @test sparse(jactestmeta(g, [1], [2])[1]) == sparse([1], [1], true)
+    println("Broadcast timings")
+    println("  y .= x")
     # test path of unsafe_copy from Input to Output
-    @test sparsity!((y,x) -> y .= x, [1,2,3], [1,2,3]) == sparse([1,2,3], [1,2,3], true)
+    @test @time jacobian_sparsity((y,x) -> y .= x, [1,2,3], [1,2,3]) == sparse([1,2,3], [1,2,3], true)
+    println("  y[:] .= x .+ 1")
+    @test @time sparse(jactestmeta(g, [1], [2])) == sparse([1], [1], true)
+    println("  y[1:2] .= x[2:3]")
     # test path of unsafe_copy from Input to an intermediary
-    @test sparsity!((y,x) -> y[1:2] .= x[2:3], [1,2,3], [1,2,3]) == sparse([1,2],[2,3],true, 3,3)
+    @test @time jacobian_sparsity((y,x) -> y[1:2] .= x[2:3], [1,2,3], [1,2,3]) == sparse([1,2],[2,3],true, 3,3)
 
     using LinearAlgebra, SparsityDetection
 
@@ -31,7 +35,7 @@ let
         mul!(out, A, x)
     end
     x = [1:4;]; out = similar(x);
-    @test sparsity!(testsparse!, out, x) == sparse([1,2,1,2,3,2,3,4,3,4],
+    @test jacobian_sparsity(testsparse!, out, x) == sparse([1,2,1,2,3,2,3,4,3,4],
                                                    [1,1,2,2,2,3,3,3,4,4], true)
 end
 
@@ -44,5 +48,5 @@ end
 
     x = [1.0:10;]
     out = similar(x)
-    @test all(sparsity!(f, out, x) .== 1)
+    @test all(jacobian_sparsity(f, out, x) .== 1)
 end

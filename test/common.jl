@@ -10,7 +10,7 @@ function jactester(f, Y, X, args...)
     ctx, val = jacobian_sparsity(f, Y, X, args...; raw=true)
 end
 
-jactestmeta(args...) = jactester(args...)[1].metadata
+jactestmeta(args...) = jactester(args...)[1].metadata[1]
 jactestval(args...) = jactester(args...) |> ((ctx,val),) -> untag(val, ctx)
 jactesttag(args...) = jactester(args...) |> ((ctx,val),) -> metadata(val, ctx)
 
@@ -18,7 +18,7 @@ function hesstester(f, X, args...)
     ctx, val = hessian_sparsity(f, X, args...; raw=true)
 end
 
-hesstestmeta(args...) = hesstester(args...)[1].metadata
+hesstestmeta(args...) = hesstester(args...)[1].metadata[1]
 hesstestval(args...)  = hesstester(args...) |> ((ctx,val),) -> untag(val, ctx)
 hesstesttag(args...)  = hesstester(args...) |> ((ctx,val),) -> metadata(val, ctx)
 

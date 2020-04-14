@@ -5,3 +5,4 @@ include("common.jl")
 @testset "Paraboloid example" begin include("paraboloid.jl") end
 
 @testset "Exploration" begin include("ifsandbuts.jl") end
+@testset "Examples" begin include("examples.jl") end
