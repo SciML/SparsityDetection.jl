@@ -14,6 +14,7 @@ include("propagate_tags.jl")
 include("linearity.jl")
 include("jacobian.jl")
 include("hessian.jl")
+include("blas.jl")
 
 Base.@deprecate sparsity!(args...) jacobian_sparsity(args...)
 Base.@deprecate hsparsity(args...) hessian_sparsity(args...)

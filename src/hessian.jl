@@ -248,14 +248,3 @@ function hessian_sparsity(f, X, args...; raw=false)
 end
 
 
-# Forward BLAS calls to generic implementation
-#
-using LinearAlgebra
-import LinearAlgebra.BLAS
-
-# generic implementations
-
-@reroute HessianSparsityContext BLAS.dot dot(Any, Any)
-@reroute HessianSparsityContext BLAS.axpy! axpy!(Any,
-                                                 AbstractArray,
-                                                 AbstractArray)

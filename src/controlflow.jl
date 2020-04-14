@@ -34,10 +34,7 @@ end
 """
 function abstract_run(acc, ctx::Cassette.Context, overdub_fn, args...)
     pass_ctx = Cassette.similarcontext(ctx, pass=AbsintPass)
-    @ambrun begin
         acc(Cassette.overdub(pass_ctx, overdub_fn, args...))
-        @amb
-    end
 end
 
 """

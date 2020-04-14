@@ -12,17 +12,36 @@ function metatype(x, ctx)
     end
 end
 
-macro reroute(ctx, f, g)
+# generic implementations
+
+_name(x::Symbol) = x
+_name(x::Expr) = (@assert x.head == :(::); x.args[1])
+macro reroute(f, g)
+    fname = f.args[1]
+    fargs = f.args[2:end]
+    gname = g.args[1]
+    gargs = g.args[2:end]
     quote
-        function Cassette.overdub(ctx::$ctx,
-                                  f::typeof($(esc(f))),
-                                  args...)
-            Cassette.overdub(
+        @inline function Cassette.overdub(ctx::JacobianSparsityContext,
+                                          f::typeof($(esc(fname))),
+                                          $(fargs...))
+            Cassette.recurse(
                 ctx,
                 invoke,
-                $(esc(g.args[1])),
-                $(esc(:(Tuple{$(g.args[2:end]...)}))),
-                args...)
+                $(esc(gname)),
+                $(esc(:(Tuple{$(gargs...)}))),
+                $(map(_name, fargs)...))
+        end
+
+        @inline function Cassette.overdub(ctx::HessianSparsityContext,
+                                          f::typeof($(esc(fname))),
+                                          $(fargs...))
+            Cassette.recurse(
+                ctx,
+                invoke,
+                $(esc(gname)),
+                $(esc(:(Tuple{$(gargs...)}))),
+                $(map(_name, fargs)...))
         end
     end
 end

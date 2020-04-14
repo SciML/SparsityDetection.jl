@@ -128,24 +128,6 @@ function Cassette.overdub(ctx::JacobianSparsityContext,
     end
 end
 
-function Cassette.overdub(ctx::JacobianSparsityContext,
-                          f::typeof(Base.unsafe_copyto!),
-                          X::Tagged,
-                          xstart,
-                          Y::Tagged,
-                          ystart,
-                          len)
-    S = ctx.metadata
-    if metatype(Y, ctx) <: JacInput
-        val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
-        nometa = Cassette.NoMetaMeta()
-        X.meta.meta[xstart:xstart+len-1] .= (i->Cassette.Meta(ProvinanceSet(i), nometa)).(ystart:ystart+len-1)
-        val
-    else
-        Cassette.recurse(ctx, f, X, xstart, Y, ystart, len)
-    end
-end
-
 function jacobian_sparsity(f!, Y, X, args...;
                            sparsity=Sparsity(length(Y), length(X)),
                            raw = false)
@@ -170,7 +152,7 @@ function jacobian_sparsity(f!, Y, X, args...;
     end
 end
 
-function Cassette.overdub(ctx::SparsityContext,
+function Cassette.overdub(ctx::JacobianSparsityContext,
                           f::typeof(Base.unsafe_copyto!),
                           X::Tagged,
                           xstart,
@@ -178,21 +160,21 @@ function Cassette.overdub(ctx::SparsityContext,
                           ystart,
                           len)
     S = ctx.metadata
-    if ismetatype(Y, ctx, JacInput) && ismetatype(X, ctx, JacOutput)
+    if metatype(Y, ctx) <: JacInput && metatype(X, ctx) <: JacOutput
         # Write directly to the output sparsity
         val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
         for (i, j) in zip(xstart:xstart+len-1, ystart:ystart+len-1)
             push!(S, i, j)
         end
         val
-    elseif ismetatype(Y, ctx, JacInput)
+    elseif metatype(Y, ctx) <: JacInput
         # Keep around a ProvinanceSet
         val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
         nometa = Cassette.NoMetaMeta()
-        rhs = (i->Cassette.Meta(pset(i), nometa)).(ystart:ystart+len-1)
+        rhs = (i->Cassette.Meta(ProvinanceSet(i), nometa)).(ystart:ystart+len-1)
         X.meta.meta[xstart:xstart+len-1] .= rhs
         val
-    elseif ismetatype(X, ctx, JacOutput)
+    elseif metatype(X, ctx) <: JacOutput
         val = Cassette.fallback(ctx, f, X, xstart, Y, ystart, len)
         for (i, j) in zip(xstart:xstart+len-1, ystart:ystart+len-1)
             y = Cassette.@overdub ctx Y[j]
