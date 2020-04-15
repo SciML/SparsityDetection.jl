@@ -1,6 +1,6 @@
 # SparsityDetection.jl
 
-[![Build Status](https://travis-ci.org/JuliaDiffEq/SparsityDetection.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/SparsityDetection.jl)
+[![Build Status](https://travis-ci.org/SciML/SparsityDetection.jl.svg?branch=master)](https://travis-ci.org/SciML/SparsityDetection.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/iruuqu4hxq00vo3s?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/sparsitydetection-jl)
 
 This is a package for automatic Jacobian and Hessian sparsity pattern detection
@@ -9,6 +9,16 @@ investigated in order to understand and utilize sparsity. This does not work
 numerically, and instead works by non-standard interpretation in order to
 check every branch for connectivity in order to determine an accurate sparsity
 pattern.
+
+If you use this package, please cite the following:
+
+```
+@article{gowda2019sparsity,
+  title={Sparsity Programming: Automated Sparsity-Aware Optimizations in Differentiable Programming},
+  author={Gowda, Shashi and Ma, Yingbo and Churavy, Valentin and Edelman, Alan and Rackauckas, Christopher},
+  year={2019}
+}
+```
 
 ## Example
 
@@ -36,9 +46,12 @@ vector of length 30 and takes in a vector of length 30, and `sparsity!` spits
 out a `Sparsity` object which we can turn into a `SparseMatrixCSC`:
 
 ```julia
-using SparsityDetection
+using SparsityDetection, SparseArrays
+input = rand(10)
+output = similar(input)
 sparsity_pattern = sparsity!(f,output,input)
 jac = Float64.(sparse(sparsity_pattern))
+
 ```
 
 ## API

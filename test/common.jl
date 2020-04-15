@@ -1,17 +1,32 @@
 ### Rules
 using Test
-using Cassette
-import Cassette: tag, untag, Tagged, metadata, hasmetadata, istagged
-using SparseArrays
-using SparsityDetection
-import SparsityDetection: abstract_run, HessianSparsityContext,
-                          JacobianSparsityContext, TermCombination, HessInput
-using Test
+using Cassette, SparsityDetection
+using SparseArrays, Test
+
+using Cassette: tag, untag, Tagged, metadata, hasmetadata, istagged
+using SparsityDetection: Path, BranchesPass, SparsityContext, Fixed,
+    Input, Output, pset, Tainted, istainted,
+    alldone, reset!, HessianSparsityContext
+using SparsityDetection: TermCombination
 
 Term(i...) = TermCombination(Set([Dict(j=>1 for j in i)]))
 
 function jactester(f, Y, X, args...)
     ctx, val = jacobian_sparsity(f, Y, X, args...; raw=true)
+    val = nothing
+    while true
+        val = Cassette.overdub(ctx,
+                            f,
+                            tag(Y, ctx, Output()),
+                            tag(X, ctx, Input()),
+                            map(arg -> arg isa Fixed ?
+                                arg.value :
+                                tag(arg, ctx, pset()), args)...)
+        println("Explored path: ", path)
+        alldone(path) && break
+        reset!(path)
+    end
+    return ctx, val
 end
 
 jactestmeta(args...) = jactester(args...)[1].metadata

@@ -1,3 +1,4 @@
+using SafeTestsets
 include("common.jl")
 
 @testset "Jacobian Sparsity" begin include("jacobian.jl") end
