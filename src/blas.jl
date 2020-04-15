@@ -6,7 +6,7 @@ import LinearAlgebra.BLAS
 # generic implementations
 
 @reroute LinearAlgebra.BLAS.dot(x,y) LinearAlgebra.dot(Any, Any)
-@reroute LinearAlgebra.BLAS.axpy!(x, y) LinearAlgebra.axpy!(Any,
+@reroute LinearAlgebra.BLAS.axpy!(a, x, y) LinearAlgebra.axpy!(Any,
                                                       AbstractArray,
                                                       AbstractArray)
 
