@@ -16,7 +16,7 @@ include("jacobian.jl")
 include("hessian.jl")
 include("blas.jl")
 
-Base.@deprecate sparsity!(args...) jacobian_sparsity(args...)
-Base.@deprecate hsparsity(args...) hessian_sparsity(args...)
+sparsity!(args...; kwargs...) = jacobian_sparsity(args...; kwargs...)
+hsparsity(args...; kwargs...) = hessian_sparsity(args...; kwargs...)
 
 end

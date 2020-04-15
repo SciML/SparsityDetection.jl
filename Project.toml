@@ -4,7 +4,6 @@ authors = ["Shashi Gowda", "Chris Rackauckas <contact@chrisrackauckas.com>"]
 version = "0.1.1"
 
 [deps]
-Amb = "c42f9944-9a8f-11e9-2851-1930a3e1c813"
 Cassette = "7057c7e9-c182-5462-911a-8362d720325c"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
@@ -14,7 +13,8 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 julia = "1"
 
 [extras]
+FiniteDiff = "6a86dc24-6348-571c-b903-95158fe2bd41"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Test", "FiniteDiff"]

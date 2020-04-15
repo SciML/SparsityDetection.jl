@@ -1,19 +1,16 @@
-import SparsityDetection: TermCombination, HessInput
-using Test
 
-Term(i...) = TermCombination(Set([Dict(j=>1 for j in i)]))
-
-@test hesstesttag(x->x, [1,2]) == HessInput()
-@test hesstesttag(x->x[1], [1,2]) == Term(1)
+@test hesstestterms(x->x[1], [1,2]) == Term(1)
 
 # Tuple / struct
 @test hesstesttag(x->(x[1],x[2])[2], [1,2]) == Term(2)
+
+@test hesstesttag(x->promote(x[1],convert(Float64, x[2]))[2], [1,2]) == Term(2)
 
 # 1-arg linear
 @test hesstesttag(x->deg2rad(x[1]), [1,2]) == Term(1)
 
 # 1-arg nonlinear
-@test hesstesttag(x->sin(x[1]), [1,2]) == (Term(1) * Term(1))
+@test hesstestterms(x->sin(x[1]), [1,2]) == (Term(1) + Term(1) * Term(1))
 
 # 2-arg (true,true,true)
 @test hesstesttag(x->x[1]+x[2], [1,2]) == Term(1)+Term(2)

@@ -12,11 +12,17 @@ macro proptagcontext(name)
         ## of x and y. So here we recurse into promote, and then tag each
         ## element of the result with the original tag
         function Cassette.overdub(ctx::$name, f::typeof(promote), args...)
-            promoted = Cassette.recurse(ctx, f, args...)
+            promoted = Cassette.fallback(ctx, f, args...)
 
             # put the tags back on:
-            tagged_promoted = map((x,v)->tag(v, ctx, metadata(x, ctx)), args, promoted)
-            Cassette.overdub(ctx, tuple, tagged_promoted...)
+            tagged_promoted = map(args, promoted) do orig, prom
+                if Cassette.hasmetadata(orig, ctx)
+                    tag(prom, ctx, metadata(orig, ctx))
+                else
+                    prom
+                end
+            end
+            Cassette.recurse(ctx, tuple, tagged_promoted...)
         end
 
         function Cassette.overdub(ctx::$name, f, args...)

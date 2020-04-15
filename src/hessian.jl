@@ -222,17 +222,19 @@ end
 
 function hessian_sparsity(f, X, args...; raw=false)
 
-    terms = zero(TermCombination)
+    terms = Ref(zero(TermCombination))
     ctx = HessianSparsityContext()
     ctx = Cassette.enabletagging(ctx, f)
     ctx = Cassette.disablehooks(ctx)
     val = nothing
     function process(result)
-        try
-            terms += metadata(result, ctx)
-        catch err
-            @warn("Could not extract hessian sparsity")
-            println(err)
+        if Cassette.hasmetadata(result, ctx)
+            try
+                terms[] += metadata(result, ctx)
+            catch err
+                @warn("Could not extract hessian sparsity")
+                println(err)
+            end
         end
         val=result
     end
@@ -242,9 +244,9 @@ function hessian_sparsity(f, X, args...; raw=false)
                      arg.value : tag(arg, ctx, one(TermCombination)), args)...)
 
     if raw
-        return ctx, val
+        return ctx, terms[], val
     end
-    _sparse(terms, length(X))
+    _sparse(terms[], length(X))
 end
 
 
