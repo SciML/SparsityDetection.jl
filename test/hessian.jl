@@ -36,7 +36,7 @@ Term(i...) = TermCombination(Set([Dict(j=>1 for j in i)]))
 # copy
 @test hesstesttag(x->copy(x)[1], [1,2]) == Term(1)
 @test hesstesttag(x->x[:][1], [1,2]) == Term(1)
-#@test hesstesttag(x->x[1:1][1], [1,2]) == Term(1)
+@test hesstesttag(x->x[1:1][1], [1,2]) == Term(1)
 
 # tests `iterate`
 function mysum(x)
