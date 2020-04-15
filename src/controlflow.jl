@@ -221,6 +221,8 @@ function rewrite_ir(ctx, ref)
 
     ir.ssavaluetypes = length(ir.code)
     # Core.Compiler.validate_code(ir)
+    #@show ref.method
+    #@show ir
     return ir
 end
 

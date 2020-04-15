@@ -8,6 +8,17 @@ macro proptagcontext(name)
     quote
         Cassette.@context($name)
 
+        ## promote(x,y) should not tag the output tuple with the union of tags
+        ## of x and y. So here we recurse into promote, and then tag each
+        ## element of the result with the original tag
+        function Cassette.overdub(ctx::$name, f::typeof(promote), args...)
+            promoted = Cassette.recurse(ctx, f, args...)
+
+            # put the tags back on:
+            tagged_promoted = map((x,v)->tag(v, ctx, metadata(x, ctx)), args, promoted)
+            Cassette.overdub(ctx, tuple, tagged_promoted...)
+        end
+
         function Cassette.overdub(ctx::$name, f, args...)
             # this check can be inferred (in theory)
             if anytagged(args...)
