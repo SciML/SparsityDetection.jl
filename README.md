@@ -39,17 +39,17 @@ end
 
 For this function, we know that the sparsity pattern of the Jacobian is a
 `Tridiagonal` matrix. However, if we didn't know the sparsity pattern for
-the Jacobian, we could use the `sparsity!` function to automatically
+the Jacobian, we could use the `jacobian_sparsity` function to automatically
 detect the sparsity pattern. This function is only available if you
 load Cassette.jl as well. We declare that the function `f` outputs a
-vector of length 30 and takes in a vector of length 30, and `sparsity!` spits
+vector of length 30 and takes in a vector of length 30, and `jacobian_sparsity` spits
 out a `Sparsity` object which we can turn into a `SparseMatrixCSC`:
 
 ```julia
 using SparsityDetection, SparseArrays
 input = rand(10)
 output = similar(input)
-sparsity_pattern = sparsity!(f,output,input)
+sparsity_pattern = jacobian_sparsity(f,output,input)
 jac = Float64.(sparse(sparsity_pattern))
 
 ```
@@ -62,7 +62,7 @@ Automated Jacobian sparsity detection is provided by the `sparsity!` function.
 The syntax is:
 
 ```julia
-sparsity!(f, Y, X, args...; sparsity=Sparsity(length(X), length(Y)), verbose=true)
+jacobian_sparsity(f, Y, X, args...; sparsity=Sparsity(length(X), length(Y)), verbose=true)
 ```
 
 The arguments are:
@@ -75,7 +75,7 @@ The arguments are:
 - `verbose`: (optional) whether to describe the paths taken by the sparsity detection.
 
 The function `f` is assumed to take arguments of the form `f(dx,x,args...)`.
-`sparsity!` returns a `Sparsity` object which describes where the non-zeros
+`jacobian_sparsity` returns a `Sparsity` object which describes where the non-zeros
 of the Jacobian occur. `sparse(::Sparsity)` transforms the pattern into
 a sparse matrix.
 
@@ -90,7 +90,7 @@ on the input argument is not allowed.
 ### Hessian Sparsity
 
 ```julia
-hsparsity(f, X, args...; verbose=true)
+hessian_sparsity(f, X, args...; verbose=true)
 ```
 The arguments are:
 
