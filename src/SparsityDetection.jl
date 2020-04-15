@@ -6,16 +6,17 @@ using Cassette: tag, untag, Tagged, metadata, hasmetadata, istagged, canrecurse
 using Cassette: tagged_new_tuple, ContextTagged, BindingMeta, DisableHooks, nametype
 using Core: SSAValue
 
-export Sparsity, hsparsity, sparsity!
+export Sparsity, jacobian_sparsity, hessian_sparsity, hsparsity, sparsity!
 
-include("program_sparsity.jl")
-include("sparsity_tracker.jl")
-include("path.jl")
-include("take_all_branches.jl")
-include("terms.jl")
+include("util.jl")
+include("controlflow.jl")
+include("propagate_tags.jl")
 include("linearity.jl")
+include("jacobian.jl")
 include("hessian.jl")
 include("blas.jl")
-include("linearity_special.jl")
+
+sparsity!(args...; kwargs...) = jacobian_sparsity(args...; kwargs...)
+hsparsity(args...; kwargs...) = hessian_sparsity(args...; kwargs...)
 
 end

@@ -49,7 +49,7 @@ end
 
 input = rand(N,N,3)
 output = similar(input)
-sparsity_pattern = sparsity!(f,output,input,nothing,0.0)
+sparsity_pattern = jacobian_sparsity(f,output,input,nothing,0.0)
 jac_sparsity = Float64.(sparse(sparsity_pattern))
 
 function testf2(u)

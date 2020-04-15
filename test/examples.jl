@@ -13,4 +13,5 @@ using SparsityDetection, SparseArrays
 input = rand(10)
 output = similar(input)
 sparsity_pattern = sparsity!(f,output,input)
-jac = Float64.(sparse(sparsity_pattern))
+
+@test nnz(sparse(sparsity_pattern)) == 28
