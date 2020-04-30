@@ -29,23 +29,33 @@ macro proptagcontext(name)
             # this check can be inferred (in theory)
             if anytagged(args...)
                 # This is a slower check
-                if !any(x->!(metatype(x, ctx) <: Cassette.NoMetaData), args)
-                    return Cassette.recurse(ctx, f, args...)
+                if all(x->metatype(x, ctx) <: Cassette.NoMetaData, args)
+                    if isleaf(f)
+                        return Cassette.fallback(ctx, f, args...)
+                    else
+                        # there maybe closures closing over tagged values
+                        return Cassette.recurse(ctx, f, args...)
+                    end
                 end
-                val = Cassette.recurse(ctx, f, args...)
-
-                # Inputs were tagged but the output wasn't
-                if !(val isa Tagged)
+                if isleaf(f)
+                    val = Cassette.fallback(ctx, f, args...)
                     return propagate_tags(ctx, f, val, args...)
-                elseif metatype(val, ctx) <: Cassette.NoMetaData
-                    return propagate_tags(ctx, f,
-                                          val,
-                                          args...)
                 else
-                    return val
+                    val = Cassette.recurse(ctx, f, args...)
+                    # Inputs were tagged but the output wasn't
+                    # So just leave the input tags on.
+                    if !(val isa Tagged) || metatype(val, ctx) <: Cassette.NoMetaData
+                        return propagate_tags(ctx, f, val, args...)
+                    else
+                        return val
+                    end
                 end
             else
-                Cassette.recurse(ctx, f, args...)
+                if isleaf(f)
+                    return Cassette.fallback(ctx, f, args...)
+                else
+                    return Cassette.recurse(ctx, f, args...)
+                end
             end
         end
     end |> esc

@@ -15,6 +15,18 @@ diadic_of_linearity(::Val{(false, true, false)}) = [\]
 diadic_of_linearity(::Val{(false, false, false)}) = [hypot, atan, mod, rem, lbeta, ^, beta]
 diadic_of_linearity(::Val) = []
 
+const all_funcs = vcat(monadic_linear,
+                       monadic_nonlinear,
+                       diadic_of_linearity(Val{(true, false, false)}()),
+                       diadic_of_linearity(Val{(false, true, false)}()),
+                       diadic_of_linearity(Val{(false, false, false)}())) |> unique
+
+
+isleaf(::Any) = false
+for f in all_funcs
+    @eval isleaf(::$(typeof(f))) = true
+end
+
 haslinearity(f, nargs) = false
 
 # some functions strip the linearity metadata

@@ -50,3 +50,17 @@ end
     out = similar(x)
     @test all(jacobian_sparsity(f, out, x) .== 1)
 end
+
+@testset "infinite loop fix with isleaf" begin
+    # without the isleaf fix, this would go into an infinite loop
+    # fixes issue #30
+    x = rand(3)
+    y = similar(x)
+    function f(y, x)
+        for i in 1:length(x)
+            y[i] = exp(x[i])
+        end
+        return nothing
+    end
+    @test jacobian_sparsity(f, y, x) == sparse([1, 2, 3], [1, 2, 3], true)
+end
