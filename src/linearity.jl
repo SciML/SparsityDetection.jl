@@ -23,6 +23,7 @@ const all_funcs = vcat(monadic_linear,
 
 
 isleaf(::Any) = false
+isleaf(t::Tagged) = isleaf(t.value)
 for f in all_funcs
     @eval isleaf(::$(typeof(f))) = true
 end

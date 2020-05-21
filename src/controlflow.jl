@@ -33,6 +33,8 @@ function alldone(p::Path) # must be called at the end of the function!
 end
 
 function current_predicate!(p::Path)
+    #bt = backtrace()
+    #Base.show_backtrace(stdout, bt)
     if p.cursor > length(p.path)
         push!(p.path, false)
     else
