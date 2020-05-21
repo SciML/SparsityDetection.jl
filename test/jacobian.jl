@@ -51,7 +51,7 @@ end
     @test all(jacobian_sparsity(f, out, x) .== 1)
 end
 
-@testset "infinite loop fix with isleaf" begin
+@testset "avoid branches in primitive functions with isleaf" begin
     # without the isleaf fix, this would go into an infinite loop
     # fixes issue #30
     x = rand(3)
@@ -63,4 +63,10 @@ end
         return nothing
     end
     @test jacobian_sparsity(f, y, x) == sparse([1, 2, 3], [1, 2, 3], true)
+
+    # this example tests that a function that gets tagged also indicates
+    # isleaf correctly
+    @test jacobian_sparsity(y,x) do y,x
+        y .= exp.(x)
+    end == sparse([1,2,3],[1,2,3],[1,1,1])
 end

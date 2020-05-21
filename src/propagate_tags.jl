@@ -41,6 +41,7 @@ macro proptagcontext(name)
                     val = Cassette.fallback(ctx, f, args...)
                     return propagate_tags(ctx, f, val, args...)
                 else
+                    #@show f, args
                     val = Cassette.recurse(ctx, f, args...)
                     # Inputs were tagged but the output wasn't
                     # So just leave the input tags on.
