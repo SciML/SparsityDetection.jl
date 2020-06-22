@@ -70,3 +70,13 @@ end
         y .= exp.(x)
     end == sparse([1,2,3],[1,2,3],[1,1,1])
 end
+
+
+using SparsityDetection: Fixed
+@testset "Fixed params" begin
+    f(y,x,z) = z > 0 ? y .= x : y .= reverse(x)
+
+    @test jacobian_sparsity(f, [1,1,1], [1,2,3], Fixed(1)) == sparse([1,2,3],[1,2,3],true)
+    @test jacobian_sparsity(f, [1,1,1], [1,2,3], Fixed(-1)) == sparse([3,2,1],[1,2,3],true)
+    @test jacobian_sparsity(f, [1,1,1], [1,2,3], 2) == sparse([1,2,3,3,1],[1,2,3,1,3],true)
+end
