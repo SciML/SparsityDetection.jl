@@ -1,6 +1,6 @@
 # Don't taint the value enclosed by Fixed
 struct Fixed
-    val
+    value
 end
 
 # Get the type of the metadata attached to a value
