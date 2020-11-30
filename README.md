@@ -1,7 +1,6 @@
 # SparsityDetection.jl
 
-[![Build Status](https://travis-ci.org/SciML/SparsityDetection.jl.svg?branch=master)](https://travis-ci.org/SciML/SparsityDetection.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/iruuqu4hxq00vo3s?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/sparsitydetection-jl)
+[![Build Status](https://github.com/SciML/SparsityDetection.jl/workflows/CI/badge.svg)](https://github.com/SciML/SparsityDetection.jl/actions?query=workflow%3ACI)
 
 This is a package for automatic Jacobian and Hessian sparsity pattern detection
 on Julia functions. Functions written for numerical work can automatically be
