@@ -1,5 +1,7 @@
 # SparsityDetection.jl
 
+#### Note: This repo has been deprecated in favor of ModelingToolkit.jl which can similarly inspect code and detect sparsity patterns.
+
 [![Build Status](https://github.com/SciML/SparsityDetection.jl/workflows/CI/badge.svg)](https://github.com/SciML/SparsityDetection.jl/actions?query=workflow%3ACI)
 
 This is a package for automatic Jacobian and Hessian sparsity pattern detection
