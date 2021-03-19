@@ -1,5 +1,9 @@
+"""
+$(DocStringExtensions.README)
+"""
 module SparsityDetection
 
+using DocStringExtensions
 using SpecialFunctions
 using Cassette, LinearAlgebra, SparseArrays
 using Cassette: tag, untag, Tagged, metadata, hasmetadata, istagged, canrecurse
