@@ -1,6 +1,6 @@
 # SparsityDetection.jl
 
-#### Note: This repo has been deprecated in favor of ModelingToolkit.jl which can similarly inspect code and detect sparsity patterns.
+#### Note: This repo has been deprecated in favor of [Symbolics.jl](https://github.com/JuliaSymbolics/Symbolics.jl) and [ModelingToolkit.jl](https://github.com/SciML/ModelingToolkit.jl) which can similarly inspect code and detect sparsity patterns.
 
 [![Build Status](https://github.com/SciML/SparsityDetection.jl/workflows/CI/badge.svg)](https://github.com/SciML/SparsityDetection.jl/actions?query=workflow%3ACI)
 
@@ -87,6 +87,9 @@ does not work numerically, meaning that it is not prone to floating point error
 or cancelation. It allows for branching and will automatically check all of the
 branches. However, a while loop of indeterminate length which is dependent
 on the input argument is not allowed.
+
+A similar method is now available from [Symbolics.jl](https://symbolics.juliasymbolics.org/stable/manual/sparsity_detection/#Sparsity-Detection-1).
+
 
 ### Hessian Sparsity
 
